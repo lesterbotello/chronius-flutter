@@ -53,13 +53,21 @@ class _MyHomePageState extends State<MyHomePage> {
       final minutes = distance.inMinutes.remainder(60);
       final seconds = distance.inSeconds.remainder(60);
 
-      var str = "$name is happening in $days days, $hours hours, $minutes minutes and $seconds seconds";
+      String str;
+
+      if(distance.inSeconds < 0){
+        str = "$name happened ${days.abs()} days, ${hours.abs()} hours, ${minutes.abs()} minutes and ${seconds.abs()} seconds ago.";
+      } else {
+        str = "$name is happening in $days days, $hours hours, $minutes minutes and $seconds seconds.";
+      }
 
       setState(() {
-        if(!_countdownText.contains(i))
+        if(i >= _countdownText.length){
           _countdownText.add(str);
-        else
+        }
+        else{
           _countdownText[i] = str;
+        }
       });
     }
   }
@@ -70,13 +78,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget getChroniList(){
     return ListView.builder(
-      padding: EdgeInsets.fromLTRB(30, 120, 30, 0),
+      padding: EdgeInsets.fromLTRB(10, 120, 10, 0),
       itemCount: _count,
       itemBuilder: (BuildContext context, int position){
         return InkWell(
           onTap: null, // TODO: Add edit event...
           child: Container(
-            color: Colors.transparent,
+            decoration: ShapeDecoration(
+              color: Colors.black45,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(20.0))
+              )
+            ),
+            padding: EdgeInsets.fromLTRB(15, 15, 15, 15),
+            margin: EdgeInsets.fromLTRB(0, 0, 0, 15),
             child: Center(
               child: Column(
                 children: <Widget>[
