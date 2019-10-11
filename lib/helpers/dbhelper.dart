@@ -39,7 +39,7 @@ class DbHelper{
 
   Future<Database> initializeDb() async {
     var dir = await getApplicationDocumentsDirectory();
-    var path = dir.path + "lunarianstudios.edenbridge.db";
+    var path = dir.path + "lunarianstudios.chronius.db";
     var db = await openDatabase(path, version: 1, onCreate: createDb);
     return db;
   }
@@ -47,14 +47,19 @@ class DbHelper{
   void createDb(Database db, int version) async {
     await db.execute(
       "CREATE TABLE $CHRONI_TABLE($_columnId INTEGER PRIMARY KEY, " +
-      "$_columnName TEXT, $_columnDescription TEXT, $_columnTargetDate TEXT, $_columnStartDate TEXT, $_columnIsActive INTEGER"
+      "$_columnName TEXT, $_columnDescription TEXT, $_columnTargetDate TEXT, $_columnStartDate TEXT, $_columnIsActive INTEGER)"
     );
   }
 
   Future<int> insertChronius(Chronius chronius) async {
     var db = await this.database;
-    var result = await db.insert(CHRONI_TABLE, chronius.toMap());
-    return result;
+    try
+    {
+      var result = await db.insert(CHRONI_TABLE, chronius.toMap());
+      return result;
+    }
+    
+    catch(ex){ return -1; }
   }
 
   Future<int> updateChronius(Chronius chronius) async {

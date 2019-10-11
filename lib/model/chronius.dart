@@ -63,17 +63,18 @@ class Chronius{
     map[Constants.COLUMN_NAME] = _name;
     map[Constants.COLUMN_DESCRIPTION] = _description;
     map[Constants.COLUMN_ISACTIVE] = this._isActive;
-    map[Constants.COLUMN_TARGET_DATE] = this._targetDate;
-    map[Constants.COLUMN_STARTING_DATE] = this._startingDate;
+    map[Constants.COLUMN_TARGET_DATE] = this._targetDate.toString();
+    map[Constants.COLUMN_STARTING_DATE] = this._startingDate.toString();
 
     return map;
   }
 
-  Chronius.fromMap(Map<String, dynamic> map){
-    this._id = map[Constants.COLUMN_ID];
-    this._description = map[Constants.COLUMN_DESCRIPTION];
-    this._isActive = map[Constants.COLUMN_ISACTIVE];
-    this._targetDate = map[Constants.COLUMN_TARGET_DATE];
-    this._startingDate = map[Constants.COLUMN_STARTING_DATE];
+  Chronius.fromObject(dynamic o){
+    this._id = o[Constants.COLUMN_ID];
+    this._name = o[Constants.COLUMN_NAME];
+    this._description = o[Constants.COLUMN_DESCRIPTION];
+    this._isActive = o[Constants.COLUMN_ISACTIVE];
+    this._targetDate = DateTime.parse(o[Constants.COLUMN_TARGET_DATE]);
+    this._startingDate = DateTime.parse(o[Constants.COLUMN_STARTING_DATE]);
   }
 }

@@ -1,4 +1,9 @@
+import 'dart:async';
+import 'package:chronius/chroniusDetail.dart';
+import 'package:chronius/helpers/dbhelper.dart';
+import 'package:chronius/model/chronius.dart';
 import 'package:flutter/material.dart';
+import 'dart:core';
 
 void main() => runApp(MyApp());
 
@@ -25,14 +30,91 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  int _count = 0;
+  var _activeChroni = <Chronius>[];
+  var _helper = DbHelper();
+  var _countdownText = <String>[];
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
+  @override
+  void initState(){
+    if(_activeChroni == null || _activeChroni.length == 0){
+      super.initState();
+      getData();
+    }
+  }
+
+  void updateCountdowns() {
+    for(var i = 0; i < _activeChroni.length; i++) {
+      final now = DateTime.now();
+      final name = _activeChroni[i].name;
+      final distance = _activeChroni[i].targetDate.difference(now);
+      final days = distance.inDays;
+      final hours = distance.inHours.remainder(24);
+      final minutes = distance.inMinutes.remainder(60);
+      final seconds = distance.inSeconds.remainder(60);
+
+      var str = "$name is happening in $days days, $hours hours, $minutes minutes and $seconds seconds";
+
+      setState(() {
+        if(!_countdownText.contains(i))
+          _countdownText.add(str);
+        else
+          _countdownText[i] = str;
+      });
+    }
+  }
+
+  void beginUpdateTimers(){
+    Timer.periodic(Duration(seconds: 1), (timer) => updateCountdowns());
+  }
+
+  Widget getChroniList(){
+    return ListView.builder(
+      padding: EdgeInsets.fromLTRB(30, 120, 30, 0),
+      itemCount: _count,
+      itemBuilder: (BuildContext context, int position){
+        return InkWell(
+          onTap: null, // TODO: Add edit event...
+          child: Container(
+            color: Colors.transparent,
+            child: Center(
+              child: Column(
+                children: <Widget>[
+                  Text(
+                    _countdownText[position],
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xff455A64),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(0.0), 
+                        topRight: Radius.circular(20.0), 
+                        bottomLeft: Radius.circular(20.0), 
+                        bottomRight: Radius.circular(0.0)
+                      ),
+                    ),
+                  )
+                ],
+            ),
+          )
+        ),
+      );
     });
   }
 
+  Widget empty(){
+    return Center(
+      child: Text(
+        'Wow, such empty :(\n\nUse the "+" button below to add a Chronius',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ));
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,6 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Stack(
         children: <Widget>[
           Container(
+            padding: EdgeInsets.all(5.0),
             decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
@@ -53,27 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             )
           ),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  'You have pushed the button this many times:',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  '$_counter',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 40.0
-                  ),
-                ),
-              ],
-            ),
-          )
+          child: _count == 0 ? empty() : getChroniList(),
         ),
         Positioned(
           top: 0.0,
@@ -89,10 +152,36 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
+        onPressed: () => navigateToAdd(context),
+        tooltip: 'Add Chronius',
         child: Icon(Icons.add),
       ),
     );
+  }
+
+  void navigateToAdd(BuildContext context){
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ChroniusDetail()));
+  }
+
+  void getData(){
+    _helper.initializeDb().then((result){
+      _helper.getAllChroni().then((result){
+        var chroni = List<Chronius>();
+        for(int i = 0; i < result.length; i++){
+          var c = Chronius.fromObject(result[i]);
+          chroni.add(c);
+          debugPrint(c.name);
+        }
+
+        // Important, this needs to be called BEFORE the first setState() call...
+        if(result.length > 0){
+          _activeChroni = chroni;
+          _count = result.length;
+          beginUpdateTimers();
+        }
+
+        debugPrint("Items: $_count");
+      });
+    });
   }
 }
