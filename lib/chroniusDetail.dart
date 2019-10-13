@@ -1,3 +1,4 @@
+import 'package:chronius/constants.dart';
 import 'package:chronius/model/chronius.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -90,15 +91,14 @@ class ChroniusDetailState extends State<ChroniusDetail>{
                         nameController.text,
                         descriptionController.text,
                         DateTime.parse(dateController.text),
-                        DateTime.now(),
-                        1
+                        DateTime.now()
                       );
 
                       _helper.insertChronius(newChronius).then((result) {
                         if(result < 1){
                           showMessage();
                         } else {
-                          Navigator.pop(context);
+                          Navigator.pop(context, Constants.MOVIE_ADDED);
                         }
                       }); 
                     }

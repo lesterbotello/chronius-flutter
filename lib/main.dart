@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:chronius/chroniusDetail.dart';
+import 'package:chronius/constants.dart';
 import 'package:chronius/helpers/dbhelper.dart';
 import 'package:chronius/model/chronius.dart';
 import 'package:flutter/material.dart';
@@ -55,10 +56,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
       String str;
 
-      if(distance.inSeconds < 0){
-        str = "$name happened ${days.abs()} days, ${hours.abs()} hours, ${minutes.abs()} minutes and ${seconds.abs()} seconds ago.";
-      } else {
+      if(_activeChroni[i].isActive){
         str = "$name is happening in $days days, $hours hours, $minutes minutes and $seconds seconds.";
+      } else {
+        str = "$name happened ${days.abs()} days, ${hours.abs()} hours, ${minutes.abs()} minutes and ${seconds.abs()} seconds ago.";
       }
 
       setState(() {
@@ -174,18 +175,25 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void navigateToAdd(BuildContext context){
-    Navigator.push(context, MaterialPageRoute(builder: (context) => ChroniusDetail()));
+  void navigateToAdd(BuildContext context) async {
+    final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => ChroniusDetail()));
+    // Reload data when the ChronusDetail page has been popped...
+
+    if(result == Constants.MOVIE_ADDED || 
+        result == Constants.MOVIE_EDITED || 
+        result == Constants.MOVIE_DELETED) {
+      getData();
+    }
   }
 
   void getData(){
     _helper.initializeDb().then((result){
       _helper.getAllChroni().then((result){
         var chroni = List<Chronius>();
+        _activeChroni.clear(); // Clear all Chroni beforehand to allow reloading...
         for(int i = 0; i < result.length; i++){
           var c = Chronius.fromObject(result[i]);
           chroni.add(c);
-          debugPrint(c.name);
         }
 
         // Important, this needs to be called BEFORE the first setState() call...
@@ -194,8 +202,6 @@ class _MyHomePageState extends State<MyHomePage> {
           _count = result.length;
           beginUpdateTimers();
         }
-
-        debugPrint("Items: $_count");
       });
     });
   }

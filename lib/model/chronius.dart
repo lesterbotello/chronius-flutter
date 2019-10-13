@@ -6,10 +6,9 @@ class Chronius{
   String _description;
   DateTime _targetDate;
   DateTime _startingDate;
-  int _isActive; // This should be a bool, but it's made an int so that it plays nice with Sqlite
 
-  Chronius(this._name, this._description, this._targetDate, this._startingDate, int _isActive);
-  Chronius.withId(this._id, this._name, this._description, this._targetDate, this._startingDate, int _isActive);
+  Chronius(this._name, this._description, this._targetDate, this._startingDate);
+  Chronius.withId(this._id, this._name, this._description, this._targetDate, this._startingDate);
 
   int get id => _id;
   String get name => _name;
@@ -17,12 +16,13 @@ class Chronius{
   DateTime get targetDate => _targetDate;
   DateTime get startingDate => _startingDate;
 
-  int get isActive {
-    if(_isActive == null){
-      _isActive = 0;
+  bool get isActive {
+    if(_targetDate == null){
+        return false;
     }
-      
-    return _isActive;
+
+    var distance = _targetDate.difference(DateTime.now());
+    return distance.inSeconds > 0;
   }
 
   set name(String newName){
@@ -62,7 +62,7 @@ class Chronius{
 
     map[Constants.COLUMN_NAME] = _name;
     map[Constants.COLUMN_DESCRIPTION] = _description;
-    map[Constants.COLUMN_ISACTIVE] = this._isActive;
+    map[Constants.COLUMN_ISACTIVE] = isActive;
     map[Constants.COLUMN_TARGET_DATE] = this._targetDate.toString();
     map[Constants.COLUMN_STARTING_DATE] = this._startingDate.toString();
 
@@ -73,7 +73,6 @@ class Chronius{
     this._id = o[Constants.COLUMN_ID];
     this._name = o[Constants.COLUMN_NAME];
     this._description = o[Constants.COLUMN_DESCRIPTION];
-    this._isActive = o[Constants.COLUMN_ISACTIVE];
     this._targetDate = DateTime.parse(o[Constants.COLUMN_TARGET_DATE]);
     this._startingDate = DateTime.parse(o[Constants.COLUMN_STARTING_DATE]);
   }
