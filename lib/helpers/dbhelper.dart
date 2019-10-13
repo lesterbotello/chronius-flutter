@@ -82,4 +82,10 @@ class DbHelper{
     var result = await db.rawQuery("SELECT * FROM $CHRONI_TABLE WHERE $_columnName LIKE '%$searchTerm%' ORDER BY $_columnId");
     return result;
   }
+
+  Future<int> deleteChronius(int id) async {
+    var db = await this.database;
+    var result = await db.rawDelete("DELETE FROM $CHRONI_TABLE WHERE $_columnId = $id");
+    return result;
+  }
 }

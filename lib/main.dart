@@ -5,6 +5,7 @@ import 'package:chronius/helpers/dbhelper.dart';
 import 'package:chronius/model/chronius.dart';
 import 'package:flutter/material.dart';
 import 'dart:core';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 void main() => runApp(MyApp());
 
@@ -79,18 +80,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget getChroniList(){
     return ListView.builder(
-      padding: EdgeInsets.fromLTRB(10, 120, 10, 0),
+      padding: EdgeInsets.fromLTRB(0, 120, 0, 0),
       itemCount: _count,
       itemBuilder: (BuildContext context, int position){
         return InkWell(
           onTap: null, // TODO: Add edit event...
-          child: Container(
-            decoration: ShapeDecoration(
-              color: Colors.black45,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(20.0))
-              )
-            ),
+          child: Slidable(
+            actionPane: SlidableScrollActionPane(),
+            actionExtentRatio: 0.25,
+            child: Container(
+            color: Color.fromARGB(255, 26, 35, 126),
             padding: EdgeInsets.fromLTRB(15, 15, 15, 15),
             margin: EdgeInsets.fromLTRB(0, 0, 0, 15),
             child: Center(
@@ -115,7 +114,17 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           )
         ),
-      );
+        actions: <Widget>[
+          Container(
+            margin: EdgeInsets.fromLTRB(0, 0, 0, 15),
+            child: IconSlideAction(
+            caption: "Delete",
+            color: Colors.red,
+            icon: Icons.delete,
+            onTap: () => deleteChronius(position)
+          ))
+        ],
+      ));
     });
   }
 
@@ -201,6 +210,17 @@ class _MyHomePageState extends State<MyHomePage> {
           _activeChroni = chroni;
           _count = result.length;
           beginUpdateTimers();
+        }
+      });
+    });
+  }
+
+  deleteChronius(int position) {
+    _helper.initializeDb().then((result){
+      _helper.deleteChronius(_activeChroni[position].id).then((result){
+        // Reload data...
+        if(result > 0){
+          getData();
         }
       });
     });
