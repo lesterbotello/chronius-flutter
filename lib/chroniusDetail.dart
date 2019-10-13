@@ -162,7 +162,7 @@ class ChroniusDetailState extends State<ChroniusDetail>{
           left: 0.0,
           right: 0.0,
           child: AppBar(
-            title: Text("Add chronius"),
+            title: Text(_editedChronius == null ? "Add chronius" : "Edit chronius"),
             backgroundColor: Colors.transparent,
             elevation: 0.0,
             centerTitle: true,
