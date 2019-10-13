@@ -10,7 +10,7 @@ class Constants{
   static const String COLUMN_STARTING_DATE = "startingDate";
 
   // Widget return codes...
-  static const String MOVIE_ADDED = "movie_added";
-  static const String MOVIE_EDITED = "movie_edited";
-  static const String MOVIE_DELETED = "movie_deleted";
+  static const String CHRONIUS_ADDED = "chronius_added";
+  static const String CHRONIUS_EDITED = "chronius_edited";
+  static const String CHRONIUS_DELETED = "chronius_deleted";
 }

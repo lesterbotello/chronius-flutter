@@ -5,12 +5,12 @@ import 'dart:async';
 import 'helpers/dbhelper.dart';
 
 class ChroniusDetail extends StatefulWidget{
-  ChroniusDetail({Key key, this.title}) : super(key: key);
-
   final String title;
+  final Chronius editedChronius;
+  ChroniusDetail({Key key, this.title, this.editedChronius}) : super(key: key);
 
   @override
-  ChroniusDetailState createState() => ChroniusDetailState();
+  ChroniusDetailState createState() => ChroniusDetailState(editedChronius);
 }
 
 class ChroniusDetailState extends State<ChroniusDetail>{
@@ -20,7 +20,21 @@ class ChroniusDetailState extends State<ChroniusDetail>{
   final mainTextStyle = TextStyle(fontFamily: 'Montserrat', color: Colors.white);
   final _helper = DbHelper();
   bool _messageVisible = false;
+  Chronius _editedChronius;
 
+  ChroniusDetailState(Chronius chronius){
+    _editedChronius = chronius;
+  }
+
+  @override
+  void initState(){
+    super.initState();
+    if(_editedChronius != null){
+      nameController.text = _editedChronius.name;
+      descriptionController.text = _editedChronius.description;
+      dateController.text = _editedChronius.targetDate.toString();
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,20 +101,35 @@ class ChroniusDetailState extends State<ChroniusDetail>{
                   onPressed: () {
                     try
                     {
-                      var newChronius = Chronius(
-                        nameController.text,
-                        descriptionController.text,
-                        DateTime.parse(dateController.text),
-                        DateTime.now()
-                      );
+                      if(_editedChronius == null){
+                        // no Chronius was passed, create new...
+                        var newChronius = Chronius(
+                          nameController.text,
+                          descriptionController.text,
+                          DateTime.parse(dateController.text),
+                          DateTime.now()
+                        );
 
-                      _helper.insertChronius(newChronius).then((result) {
-                        if(result < 1){
-                          showMessage();
-                        } else {
-                          Navigator.pop(context, Constants.MOVIE_ADDED);
-                        }
-                      }); 
+                        _helper.insertChronius(newChronius).then((result) {
+                          if(result < 1){
+                            showMessage();
+                          } else {
+                            Navigator.pop(context, Constants.CHRONIUS_ADDED);
+                          }
+                        }); 
+                      } else {
+                        _editedChronius.name = nameController.text;
+                        _editedChronius.description = descriptionController.text;
+                        _editedChronius.targetDate = DateTime.parse(dateController.text);
+
+                        _helper.updateChronius(_editedChronius).then((result){
+                          if(result < 1){
+                            showMessage();
+                          } else {
+                            Navigator.pop(context, Constants.CHRONIUS_EDITED);
+                          }
+                        });
+                      }
                     }
                     catch(ex)
                     {

@@ -84,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
       itemCount: _count,
       itemBuilder: (BuildContext context, int position){
         return InkWell(
-          onTap: null, // TODO: Add edit event...
+          onTap: () => navigateToEdit(context, _activeChroni[position]),
           child: Slidable(
             actionPane: SlidableScrollActionPane(),
             actionExtentRatio: 0.25,
@@ -184,13 +184,24 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void navigateToEdit(BuildContext context, Chronius chronius) async {
+    final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => 
+      ChroniusDetail(
+        key: new Key("chronius:edit"), 
+        title: "Edit Chronius", 
+        editedChronius: chronius))
+      );
+
+      if(result == Constants.CHRONIUS_EDITED) {
+        getData();
+      }
+  }
+
   void navigateToAdd(BuildContext context) async {
     final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => ChroniusDetail()));
-    // Reload data when the ChronusDetail page has been popped...
 
-    if(result == Constants.MOVIE_ADDED || 
-        result == Constants.MOVIE_EDITED || 
-        result == Constants.MOVIE_DELETED) {
+    // Reload data when the ChronusDetail page has been popped...
+    if(result == Constants.CHRONIUS_ADDED) {
       getData();
     }
   }
