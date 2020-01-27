@@ -96,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 children: <Widget>[
                   Text(
-                    _countdownText[position],
+                    position <= _countdownText.length - 1 ? _countdownText[position] : "Loading...",
                     style: TextStyle(color: Colors.white),
                   ),
                   Container(
