@@ -3,6 +3,7 @@ import 'package:chronius/chroniusDetail.dart';
 import 'package:chronius/constants.dart';
 import 'package:chronius/helpers/dbhelper.dart';
 import 'package:chronius/model/chronius.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:core';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -80,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget getChroniList(){
     return ListView.builder(
-      padding: EdgeInsets.fromLTRB(0, 120, 0, 0),
+      padding: EdgeInsets.fromLTRB(10, 120, 10, 0),
       itemCount: _count,
       itemBuilder: (BuildContext context, int position){
         return InkWell(
@@ -89,39 +90,34 @@ class _MyHomePageState extends State<MyHomePage> {
             actionPane: SlidableScrollActionPane(),
             actionExtentRatio: 0.25,
             child: Container(
-            color: Color.fromARGB(255, 26, 35, 126),
-            padding: EdgeInsets.fromLTRB(15, 15, 15, 15),
-            margin: EdgeInsets.fromLTRB(0, 0, 0, 15),
-            child: Center(
-              child: Column(
-                children: <Widget>[
-                  Text(
-                    position <= _countdownText.length - 1 ? _countdownText[position] : "Loading...",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Color(0xff455A64),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(0.0), 
-                        topRight: Radius.circular(20.0), 
-                        bottomLeft: Radius.circular(20.0), 
-                        bottomRight: Radius.circular(0.0)
-                      ),
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 26, 35, 126),
+                border: Border.all(color: Colors.white),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(20.0)
+                ),
+              ),
+              padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
+              margin: EdgeInsets.fromLTRB(0, 0, 0, 25),
+              child: Center(
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                      position <= _countdownText.length - 1 ? _countdownText[position] : "Loading...",
+                      style: TextStyle(color: Colors.white),
                     ),
-                  )
-                ],
-            ),
-          )
+                  ],
+              ),
+            )
         ),
         actions: <Widget>[
           Container(
             margin: EdgeInsets.fromLTRB(0, 0, 0, 15),
             child: IconSlideAction(
-            caption: "Delete",
-            color: Colors.red,
-            icon: Icons.delete,
-            onTap: () => deleteChronius(position)
+              caption: "Delete",
+              color: Colors.red,
+              icon: Icons.delete,
+              onTap: () => deleteChronius(position, context)
           ))
         ],
       ));
@@ -221,19 +217,46 @@ class _MyHomePageState extends State<MyHomePage> {
           _activeChroni = chroni;
           _count = result.length;
           beginUpdateTimers();
+        } else {
+          // Hide chroni list and show empty message...
+          setState(() => _count = 0);
         }
       });
     });
   }
 
-  deleteChronius(int position) {
-    _helper.initializeDb().then((result){
-      _helper.deleteChronius(_activeChroni[position].id).then((result){
-        // Reload data...
-        if(result > 0){
-          getData();
-        }
-      });
-    });
+  deleteChronius(int position, BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Delete chronius"),
+          content: Text("Are you sure you want to delete this chronius?"),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("Yes"),
+              onPressed: (){
+                _helper.initializeDb().then((result){
+                  _helper.deleteChronius(_activeChroni[position].id).then((result){
+                    // Reload data...
+                    if(result > 0){
+                      getData();
+                    }
+                  });
+                });
+
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text("No"),
+              onPressed: (){
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      }
+    );
   }
 }
