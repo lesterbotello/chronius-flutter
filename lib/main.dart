@@ -34,6 +34,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _count = 0;
+  String _emptyStateLabel = "Please wait...";
   var _activeChroni = <Chronius>[];
   var _helper = DbHelper();
   var _countdownText = <String>[];
@@ -127,7 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget empty(){
     return Center(
       child: Text(
-        'Wow, such empty :(\n\nUse the "+" button below to add a Chronius',
+        _emptyStateLabel,
         textAlign: TextAlign.center,
         style: TextStyle(
           color: Colors.white,
@@ -219,7 +220,10 @@ class _MyHomePageState extends State<MyHomePage> {
           beginUpdateTimers();
         } else {
           // Hide chroni list and show empty message...
-          setState(() => _count = 0);
+          setState(() {
+            _count = 0;
+            _emptyStateLabel = 'Wow, such empty :(\n\nUse the "+" button below to add a Chronius';
+          });
         }
       });
     });
